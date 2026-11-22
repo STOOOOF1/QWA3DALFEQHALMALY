@@ -1,0 +1,75 @@
+/* ===== طبقة المغامرة البكسلية ===== */
+body.rpg{background:#1d1a2b}
+#game{position:fixed;inset:0}
+#game canvas{image-rendering:pixelated}
+.pix{image-rendering:pixelated}
+:root{--px:#1d1a2b;--pxl:#f6efe0}
+/* أزرار وبطاقات ببكسل */
+.rpg .panel-card,.rpg .start-card,.rpg .hud-rank,.rpg .hud-btns button,.rpg .hud-streak,.rpg #prompt{border:3px solid var(--px);box-shadow:4px 4px 0 rgba(0,0,0,.45);border-radius:10px}
+.rpg .pri,.rpg .sec,.rpg .danger{border:3px solid var(--px);box-shadow:3px 3px 0 var(--px);border-radius:10px;transition:transform .05s}
+.rpg .pri:active,.rpg .sec:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--px)}
+.rpg .opt{border:2.5px solid var(--px);box-shadow:2px 2px 0 rgba(0,0,0,.35)}
+.start-card #startHero{width:96px;height:96px;margin:0 auto;display:block;animation:bob 1s steps(2) infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.start-card h1{font-size:38px;letter-spacing:.5px;text-shadow:3px 3px 0 #f8efd9}
+#start{background:radial-gradient(circle at 50% 30%,rgba(91,74,158,.55),rgba(20,18,32,.85) 70%)}
+
+.hud-hearts{display:flex;gap:3px;background:rgba(255,253,248,.94);border:3px solid var(--px);border-radius:10px;padding:7px 8px;box-shadow:4px 4px 0 rgba(0,0,0,.45)}
+.hud-hearts img{width:22px;height:19px}
+
+#banner{position:fixed;top:26%;left:50%;transform:translate(-50%,-50%) scale(.9);background:var(--px);color:#ffd86a;border:4px solid #ffd86a;border-radius:6px;padding:12px 26px;font-weight:900;font-size:24px;text-align:center;opacity:0;pointer-events:none;z-index:6;box-shadow:6px 6px 0 rgba(0,0,0,.5)}
+#banner small{display:block;color:#fff;font-size:14px;font-weight:700}
+#banner.show{animation:ban 2.6s ease forwards}
+@keyframes ban{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}20%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0}}
+
+/* الحوار */
+#dialog{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);width:min(720px,96vw);background:var(--pxl);border:4px solid var(--px);border-radius:12px;box-shadow:6px 6px 0 rgba(0,0,0,.5);display:flex;gap:14px;padding:14px;z-index:8;animation:pop .2s}
+#dialog img{width:84px;height:84px;image-rendering:pixelated;background:#e8dcc2;border:3px solid var(--px);border-radius:8px;flex:none}
+.dlg-body{flex:1;min-width:0}
+#dlgName{color:#5b4a9e;font-size:1.05em}
+#dlgText{line-height:1.9;margin:4px 0 10px;min-height:3.6em}
+#dlgBtns{display:flex;gap:8px;flex-wrap:wrap}
+#dlgBtns button{padding:9px 16px;min-height:44px}
+
+/* المعركة */
+#battle{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;background:linear-gradient(180deg,#9fd3f0 0,#cfeaf7 38%,#8fcf6a 38%,#6fb84f 100%)}
+#battle.boss{background:linear-gradient(180deg,#2a1f3d 0,#4a2f5f 40%,#3a2a40 40%,#241a2a 100%)}
+#battle[hidden]{display:none!important}
+.arena{flex:1;position:relative;min-height:220px;max-height:46vh}
+.foe-side{position:absolute;top:6%;left:6%;right:6%;display:flex;justify-content:space-between;align-items:flex-start}
+.me-side{position:absolute;bottom:4%;left:6%;right:6%;display:flex;justify-content:space-between;align-items:flex-end}
+#foeImg{width:min(150px,28vw);image-rendering:pixelated;filter:drop-shadow(0 8px 0 rgba(0,0,0,.2));margin-top:20px}
+#battle.boss #foeImg{width:min(210px,40vw)}
+#meImg{width:min(140px,26vw);image-rendering:pixelated}
+.hpbox{background:var(--pxl);border:3px solid var(--px);border-radius:10px;padding:8px 12px;min-width:min(260px,52vw);box-shadow:4px 4px 0 rgba(0,0,0,.4)}
+.hpbox b{display:block;font-size:1em}
+.hp{height:10px;background:#5a5466;border:2px solid var(--px);border-radius:6px;overflow:hidden;margin:5px 0 2px}
+.hp i{display:block;height:100%;background:linear-gradient(90deg,#e0475a,#f5a13d);transition:width .4s steps(6)}
+.hpbox small{font-size:.8em}
+.hearts-row{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}.hearts-row img{width:22px;height:19px}
+.battle-ui{background:var(--pxl);border-top:4px solid var(--px);padding:10px 14px 14px;max-height:58vh;overflow:auto}
+#battleMsg{font-weight:800;font-size:1.05em;color:#5b4a9e;min-height:1.5em}
+#battleQ .qbox{margin:8px 0 0;border:3px solid var(--px)}
+#battleQ .opts{grid-template-columns:1fr 1fr}
+.hit{animation:hit .45s}
+@keyframes hit{0%,100%{transform:none;filter:none}20%{transform:translateX(-10px);filter:brightness(3)}40%{transform:translateX(8px)}60%{transform:translateX(-5px);filter:brightness(2)}}
+.atk{animation:atk .35s}
+@keyframes atk{50%{transform:translate(-24px,-18px)}}
+.hurt{animation:hurt .5s}
+@keyframes hurt{0%,100%{opacity:1}25%,75%{opacity:.2;transform:translateX(6px)}50%{opacity:1}}
+.quake{animation:quake .3s}
+@keyframes quake{25%{transform:translate(4px,-3px)}50%{transform:translate(-4px,2px)}75%{transform:translate(3px,3px)}}
+
+#touch #actBtn{background:#e0475a;font-size:26px;border:4px solid var(--px)}
+#prompt{background:var(--pxl)}
+.rpg #prompt button{background:#5b4a9e}
+@media (max-width:640px){
+  #battleQ .opts{grid-template-columns:1fr}
+  .arena{min-height:180px;max-height:36vh}
+  .battle-ui{max-height:64vh}
+  #dialog{bottom:10px;padding:10px;gap:10px}
+  #dialog img{width:60px;height:60px}
+  .hud-hearts img{width:16px;height:14px}
+  .hud-hearts{padding:6px}
+  body.has-prompt #prompt,.rpg #prompt{bottom:196px}
+}

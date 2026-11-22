@@ -1,7 +1,7 @@
 /* طبقة التعلّم: الدروس والمحاكيات والاختبارات والحفظ والتقرير — تعمل مع العالم ثلاثي الأبعاد أو بدونه */
 (function(){
 'use strict';
-const C=window.CONTENT, KEY='madinat-alqawaid-v1', TEACHER_CODE='0000', PASS=0.8;
+const C=window.CONTENT, KEY='rihlat-alqawaid-2d-v1', TEACHER_CODE='0000', PASS=0.8;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LES={},CH={};C.chapters.forEach((c,ci)=>{c.idx=ci;CH[c.id]=c;c.lessons.forEach(l=>{l.ch=c.id;LES[l.id]=l;});});
@@ -38,8 +38,8 @@ function hud(){const r=rankIdx();$('#rankName').textContent=C.ranks[r];const bas
  $('#btnMute').textContent=S.mute?'🔇':'🔊';document.documentElement.style.setProperty('--fs',(16.5+S.font*1.5)+'px');
  objective();if(window.World&&World.refresh)World.refresh();}
 function objective(){const o=$('#objective');if(!S.started){o.hidden=true;return;}
- const c=C.chapters.find(c=>unlocked(c.id)&&!chDone(c.id));if(!c){o.hidden=false;o.textContent='🏆 أتممت الأحياء كلها! افتح التقرير لاستلام الشهادة.';return;}
- const l=c.lessons.find(l=>!S.done[l.id]);o.hidden=false;o.innerHTML=l?`🎯 الهدف: حيّ <b>${esc(c.title)}</b> · ادخل مبنى «${esc(l.title)}»`:`🎯 الهدف: اجتز <b>تحدي حيّ ${esc(c.title)}</b> (80%)`;}
+ const c=C.chapters.find(c=>unlocked(c.id)&&!chDone(c.id));if(!c){o.hidden=false;o.textContent='🏆 أتممت الأراضي كلها! افتح التقرير لاستلام الشهادة.';return;}
+ const l=c.lessons.find(l=>!S.done[l.id]);o.hidden=false;o.innerHTML=l?`🎯 أرض <b>${esc(c.title)}</b> · كلّم الشيخ: «${esc(l.title)}»`:`🎯 اهزم <b>زعيم أرض ${esc(c.title)}</b> عند البوابة`;}
 
 /* ---------- اللوح ---------- */
 let panelOnClose=null,panelT0=0,panelCh=null;
@@ -92,38 +92,38 @@ function leitner(key,ok){const L=S.leit[key];const d=today();
 function dueReview(){const d=today();return Object.entries(S.leit).filter(([k,L])=>QBYKEY[k]&&(L.box===1||L.last!==d)).map(([k])=>k);}
 
 /* ---------- الدرس ---------- */
-function openLesson(id){const l=LES[id],c=CH[l.ch];if(!unlocked(c.id)){toast('🔒 اجتز تحدي الحيّ السابق أولًا');return;}
+function openLesson(id){const l=LES[id],c=CH[l.ch];if(!unlocked(c.id)){toast('🔒 اجتز تحدي الأرض السابق أولًا');return;}
  SFX.open();
- const b=openPanel(l.title,`<div class="meta"><span class="chip t">حيّ ${esc(c.title)}</span><span class="chip">المذكرة ص ${l.page}</span>${S.mastered[id]?'<span class="chip">★ متقن مبدئيًا</span>':''}</div>${blocksHTML(l.blocks)}<div id="wHost"></div><div id="qHost"></div>`,{ch:c.id});
+ const b=openPanel(l.title,`<div class="meta"><span class="chip t">أرض ${esc(c.title)}</span><span class="chip">المذكرة ص ${l.page}</span>${S.mastered[id]?'<span class="chip">★ متقن مبدئيًا</span>':''}</div>${blocksHTML(l.blocks)}<div id="wHost"></div><div id="qHost"></div>`,{ch:c.id});
  if(l.widget)renderWidget(b.querySelector('#wHost'),l.widget);
  const qh=b.querySelector('#qHost');
  renderQ(qh,Object.assign({lesson:id},l.quick),{label:'سؤال الدرس السريع',inLesson:true,xp:15,cb:ok=>{if(!S.done[id]){S.done[id]=true;save();addXP(20);if(window.World)World.celebrate(id);}
    const nxt=nextAfter(id);const d=document.createElement('div');d.className='row-btns';
-   d.innerHTML=nxt?`<button class="pri" id="goNext">${nxt.type==='lesson'?'الدرس التالي: '+esc(LES[nxt.id].title):'⚔️ تحدي حيّ '+esc(CH[nxt.id].title)}</button><button class="sec" id="goCity">العودة إلى المدينة</button>`:`<button class="sec" id="goCity">العودة إلى المدينة</button>`;
-   qh.appendChild(d);const gn=d.querySelector('#goNext');if(gn)gn.onclick=()=>nxt.type==='lesson'?openLesson(nxt.id):openQuiz(nxt.id);d.querySelector('#goCity').onclick=closePanel;}});}
+   d.innerHTML=nxt?`<button class="pri" id="goNext">${nxt.type==='lesson'?'إلى الشيخ التالي: '+esc(LES[nxt.id].title):'👑 زعيم أرض '+esc(CH[nxt.id].title)}</button><button class="sec" id="goCity">العودة إلى المدينة</button>`:`<button class="sec" id="goCity">العودة إلى المدينة</button>`;
+   qh.appendChild(d);const gn=d.querySelector('#goNext');if(gn)gn.onclick=()=>{if(nxt.type==='lesson'){if(window.World&&World.walkTo){closePanel();World.walkTo(nxt.id);}else openLesson(nxt.id);}else{if(window.World&&World.bossBattle){closePanel();World.bossBattle(nxt.id);}else openQuiz(nxt.id);}};d.querySelector('#goCity').onclick=closePanel;}});}
 function nextAfter(id){const l=LES[id],c=CH[l.ch];const i=c.lessons.indexOf(l);const n=c.lessons.slice(i+1).find(x=>!S.done[x.id])||c.lessons.find(x=>!S.done[x.id]);if(n)return{type:'lesson',id:n.id};if(!chDone(c.id))return{type:'quiz',id:c.id};return null;}
 
 /* ---------- التشخيص ---------- */
 function maybePretest(chId,then){const c=CH[chId];if(S.pre[chId]||c.lessons.every(l=>S.done[l.id])){then();return;}
- const b=openPanel('بوابة حيّ '+c.title,`<p class="blk-p">مرحبًا بك في حيّ <b>${esc(c.title)}</b>. فيه ${c.lessons.length} مبانٍ (دروس) وتحدٍّ في آخره.</p><div class="blk-note"><span class="lbl">اختبار تشخيصي اختياري:</span> ${Math.min(3,c.lessons.length)} أسئلة قصيرة. الدرس الذي تجيب عن سؤاله صحيحًا يُوسم «متقن مبدئيًا ★» ويمكنك تجاوزه، ويبقى مفتوحًا.</div><div class="row-btns"><button class="pri" id="preGo">ابدأ التشخيص</button><button class="sec" id="preSkip">تخطَّ وادخل الحيّ</button></div>`,{ch:chId});
+ const b=openPanel('بوابة أرض '+c.title,`<p class="blk-p">مرحبًا بك في أرض <b>${esc(c.title)}</b>. فيه ${c.lessons.length} مبانٍ (دروس) وتحدٍّ في آخره.</p><div class="blk-note"><span class="lbl">اختبار تشخيصي اختياري:</span> ${Math.min(3,c.lessons.length)} أسئلة قصيرة. الدرس الذي تجيب عن سؤاله صحيحًا يُوسم «متقن مبدئيًا ★» ويمكنك تجاوزه، ويبقى مفتوحًا.</div><div class="row-btns"><button class="pri" id="preGo">ابدأ التشخيص</button><button class="sec" id="preSkip">تخطَّ وادخل الأرض</button></div>`,{ch:chId});
  b.querySelector('#preSkip').onclick=()=>{S.pre[chId]=true;save();closePanel();then();};
  b.querySelector('#preGo').onclick=()=>{const ls=c.lessons.slice().sort(()=>Math.random()-.5).slice(0,3);let k=0,good=0;
-  const step=()=>{b.innerHTML='';if(k>=ls.length){S.pre[chId]=true;save();b.innerHTML=`<p class="score">${good} / ${ls.length}</p><p class="center">${good?'وُسمت الدروس التي أتقنتها بنجمة ★ في الخريطة.':'ابدأ بالدروس بالترتيب.'}</p><div class="row-btns"><button class="pri" id="preDone">ادخل الحيّ</button></div>`;b.querySelector('#preDone').onclick=()=>{closePanel();then();};return;}
+  const step=()=>{b.innerHTML='';if(k>=ls.length){S.pre[chId]=true;save();b.innerHTML=`<p class="score">${good} / ${ls.length}</p><p class="center">${good?'وُسمت الدروس التي أتقنتها بنجمة ★ في الخريطة.':'ابدأ بالدروس بالترتيب.'}</p><div class="row-btns"><button class="pri" id="preDone">ادخل الأرض</button></div>`;b.querySelector('#preDone').onclick=()=>{closePanel();then();};return;}
    const l=ls[k];b.insertAdjacentHTML('beforeend',`<div class="progress-dots">${ls.map((_,j)=>`<i class="${j<k?'ok':j===k?'cur':''}"></i>`).join('')}</div>`);
    renderQ(b,Object.assign({lesson:l.id},l.quick),{label:'تشخيص · '+l.title,inLesson:true,xp:5,next:()=>{k++;step();},nextLabel:'التالي',cb:ok=>{if(ok){good++;S.mastered[l.id]=true;save();}}});};
   step();};}
 
-/* ---------- تحدي الحيّ ---------- */
-function openQuiz(chId){const c=CH[chId];if(!unlocked(chId)){toast('🔒 هذا الحيّ مقفل');return;}
+/* ---------- تحدي الأرض ---------- */
+function openQuiz(chId){const c=CH[chId];if(!unlocked(chId)){toast('🔒 هذا الأرض مقفل');return;}
  const qs=c.quiz.map(q=>Object.assign({},q,{_key:q._key})).sort(()=>Math.random()-.5);let k=0,good=0,res=[];
- const b=openPanel('⚔️ تحدي حيّ '+c.title,'',{ch:chId});
+ const b=openPanel('👑 زعيم أرض '+c.title,'',{ch:chId});
  const step=()=>{b.innerHTML='';if(k>=qs.length){finish();return;}
   b.insertAdjacentHTML('beforeend',`<div class="progress-dots">${qs.map((_,j)=>`<i class="${j<k?(res[j]?'ok':'no'):j===k?'cur':''}"></i>`).join('')}</div>`);
   renderQ(b,qs[k],{label:`سؤال ${k+1} من ${qs.length}`,xp:12,next:()=>{k++;step();},nextLabel:k===qs.length-1?'النتيجة':'التالي',cb:ok=>{res[k]=ok;if(ok)good++;}});};
  const finish=()=>{const sc=good/qs.length,pct=Math.round(sc*100);S.attempts[chId]=(S.attempts[chId]||0)+1;const prevPass=chDone(chId);S.quiz[chId]=Math.max(S.quiz[chId]||0,sc);save();
   const pass=sc>=PASS;if(pass){SFX.win();confetti();if(!prevPass){addXP(80);if(window.World)World.unlockFx(chId);}}else SFX.no();
   const weak=[...new Set(qs.filter((q,j)=>!res[j]).map(q=>q.lesson))];const nx=C.chapters[c.idx+1];
-  b.innerHTML=`<p class="score">${pct}%</p><p class="center"><b>${pass?(nx?'🎉 نجحت! فُتح حيّ «'+esc(nx.title)+'».':'🏆 أتممت التحدي الأخير!'):'تحتاج 80% لفتح الحيّ التالي. أعد المحاولة بأسئلة مخلوطة.'}</b></p>`+
+  b.innerHTML=`<p class="score">${pct}%</p><p class="center"><b>${pass?(nx?'🎉 نجحت! فُتح أرض «'+esc(nx.title)+'».':'🏆 أتممت التحدي الأخير!'):'تحتاج 80% لفتح الأرض التالي. أعد المحاولة بأسئلة مخلوطة.'}</b></p>`+
    (weak.length?`<p class="blk-p">راجع هذه الدروس:</p><div class="row-btns">${weak.map(id=>`<button class="sec" data-l="${id}">${esc(LES[id].title)}</button>`).join('')}</div>`:'')+
    `<div class="row-btns">${pass?'':'<button class="pri" id="again">أعد التحدي</button>'}${pass&&allDone()?'<button class="pri" id="cert">🎓 استلم الشهادة</button>':''}<button class="sec" id="back">العودة إلى المدينة</button></div>`;
   b.querySelectorAll('[data-l]').forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
@@ -139,11 +139,11 @@ function openReview(){const keys=dueReview();if(!keys.length){openPanel('🔁 م
 /* ---------- الخريطة ---------- */
 function showMap(){SFX.click();const html=`<p class="blk-p">كل الدروس متاحة من هنا دون مشي. ✓ = منجز، ★ = متقن في التشخيص.</p><div class="map-grid">${C.chapters.map(c=>{const u=unlocked(c.id),best=S.quiz[c.id];
   return `<div class="dist ${u?'':'locked'}"><h3><i style="background:${c.color}"></i>${u?'':'🔒 '}${c.idx+1}. ${esc(c.title)}</h3>${c.lessons.map(l=>`<button class="les ${S.done[l.id]?'done':''} ${S.mastered[l.id]?'mast':''}" data-l="${l.id}" ${u?'':'disabled'}>${esc(l.title)}</button>`).join('')}
-  <button class="${chDone(c.id)?'sec':'pri'} qz" data-q="${c.id}" ${u?'':'disabled'}>⚔️ تحدي الحيّ</button><div class="best">${best!=null?'أفضل نتيجة: '+Math.round(best*100)+'%':'لم يُجتز بعد'}${u&&window.World&&World.ok?` · <button class="ghost" data-go="${c.id}">انتقل إليه في المدينة</button>`:''}</div></div>`;}).join('')}</div>
+  <button class="${chDone(c.id)?'sec':'pri'} qz" data-q="${c.id}" ${u?'':'disabled'}>👑 زعيم الأرض</button><div class="best">${best!=null?'أفضل نتيجة: '+Math.round(best*100)+'%':'لم يُجتز بعد'}${u&&window.World&&World.ok?` · <button class="ghost" data-go="${c.id}">انتقل إليه في المدينة</button>`:''}</div></div>`;}).join('')}</div>
   <div class="row-btns"><button class="sec" id="mapSum">📜 الخلاصة الختامية</button>${allDone()?'<button class="pri" id="mapCert">🎓 الشهادة</button>':''}</div>`;
  const b=openPanel('🗺️ خريطة المنهج',html);
  b.querySelectorAll('[data-l]').forEach(x=>x.onclick=()=>{const l=LES[x.dataset.l];maybePretest(l.ch,()=>openLesson(l.id));});
- b.querySelectorAll('[data-q]').forEach(x=>x.onclick=()=>openQuiz(x.dataset.q));
+ b.querySelectorAll('[data-q]').forEach(x=>x.onclick=()=>{if(window.World&&World.bossBattle){closePanel();World.bossBattle(x.dataset.q);}else openQuiz(x.dataset.q);});
  b.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>{closePanel();World.goTo(x.dataset.go);});
  b.querySelector('#mapSum').onclick=showSummary;const mc=b.querySelector('#mapCert');if(mc)mc.onclick=showCert;}
 function showSummary(){openPanel('📜 الخلاصة الختامية',`<ol class="blk-list">${C.summary.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`);}
@@ -155,8 +155,8 @@ function certCode(name,score,date){return hash(name+'|'+score+'|'+date);}
 function weakest(){return Object.entries(S.wrong).filter(([k])=>LES[k]).sort((a,b)=>b[1]-a[1]).slice(0,3);}
 function fmtT(s){s=s||0;return s<60?s+' ث':Math.round(s/60)+' د';}
 function reportText(){return `تقرير «مدينة القواعد» - ${S.name||'طالب'}\nالدروس المنجزة: ${Object.keys(S.done).length}/${Object.keys(LES).length}\nالخبرة: ${S.xp} (${C.ranks[rankIdx()]})\n`+C.chapters.map(c=>`${c.idx+1}. ${c.title}: ${S.quiz[c.id]!=null?Math.round(S.quiz[c.id]*100)+'%':'—'} · الوقت ${fmtT(S.time[c.id])}`).join('\n')+`\nأضعف الدروس: ${weakest().map(([k,n])=>LES[k].title+' ('+n+' أخطاء)').join('، ')||'لا يوجد'}`;}
-function showReport(){const w=weakest();const b=openPanel('📊 تقريري',`<div class="stat"><div><b>${Object.keys(S.done).length}/${Object.keys(LES).length}</b>درسًا</div><div><b>${S.xp}</b>خبرة</div><div><b>${C.chapters.filter(c=>chDone(c.id)).length}/8</b>أحياء مجتازة</div><div><b>${S.best}</b>أطول سلسلة</div></div>
- <div class="tbl-wrap"><table class="blk"><thead><tr><th>الحيّ</th><th>أفضل نتيجة</th><th>المحاولات</th><th>الوقت</th></tr></thead><tbody>${C.chapters.map(c=>`<tr><td>${esc(c.title)}</td><td>${S.quiz[c.id]!=null?Math.round(S.quiz[c.id]*100)+'%':'—'}</td><td>${S.attempts[c.id]||0}</td><td>${fmtT(S.time[c.id])}</td></tr>`).join('')}</tbody></table></div>
+function showReport(){const w=weakest();const b=openPanel('📊 تقريري',`<div class="stat"><div><b>${Object.keys(S.done).length}/${Object.keys(LES).length}</b>درسًا</div><div><b>${S.xp}</b>خبرة</div><div><b>${C.chapters.filter(c=>chDone(c.id)).length}/8</b>أراضٍ مجتازة</div><div><b>${S.best}</b>أطول سلسلة</div></div>
+ <div class="tbl-wrap"><table class="blk"><thead><tr><th>الأرض</th><th>أفضل نتيجة</th><th>المحاولات</th><th>الوقت</th></tr></thead><tbody>${C.chapters.map(c=>`<tr><td>${esc(c.title)}</td><td>${S.quiz[c.id]!=null?Math.round(S.quiz[c.id]*100)+'%':'—'}</td><td>${S.attempts[c.id]||0}</td><td>${fmtT(S.time[c.id])}</td></tr>`).join('')}</tbody></table></div>
  <p class="blk-p"><b>أضعف ثلاثة دروس:</b> ${w.length?w.map(([k,n])=>`<button class="ghost" data-l="${k}">${esc(LES[k].title)} (${n})</button>`).join(' · '):'لا أخطاء مسجّلة بعد.'}</p>
  <div class="row-btns"><button class="sec" id="rpCopy">📋 انسخ التقرير نصًا</button><button class="sec" id="rpPrint">🖨️ اطبع</button>${allDone()?'<button class="pri" id="rpCert">🎓 الشهادة</button>':''}<button class="danger" id="rpReset">مسح التقدم</button></div><div id="rpConf"></div>`);
  b.querySelectorAll('[data-l]').forEach(x=>x.onclick=()=>openLesson(x.dataset.l));
@@ -166,15 +166,15 @@ function showReport(){const w=weakest();const b=openPanel('📊 تقريري',`<
  b.querySelector('#rpReset').onclick=()=>{b.querySelector('#rpConf').innerHTML='<div class="blk-note">سيُمسح تقدمك كله. متأكد؟ <button class="danger" id="rsY">نعم امسح</button> <button class="sec" id="rsN">إلغاء</button></div>';
   b.querySelector('#rsY').onclick=()=>{const n=S.name;S=Object.assign({},def,{name:n,started:true});save();closePanel();toast('بدأت من جديد');hud();};b.querySelector('#rsN').onclick=()=>b.querySelector('#rpConf').innerHTML='';};}
 function printHTML(h){$('#printArea').innerHTML=h;try{window.print();}catch(e){toast('الطباعة غير متاحة هنا، استعمل النسخ');}}
-function showCert(){if(!allDone()&&!S.teacher){toast('اجتز الأحياء الثمانية أولًا');return;}const sc=avgScore(),d=today(),code=certCode(S.name||'طالب',sc,d);
- const certH=`<div class="cert"><p>شهادة إتمام</p><h3>مدينة القواعد</h3><p>قواعد الفقه المالي ومقاصده</p><p>تشهد بأن</p><div class="nm">${esc(S.name||'طالب العلم')}</div><p>أتمّ أحياء المدينة الثمانية بمتوسط <b>${sc}%</b> ورتبة <b>${esc(C.ranks[rankIdx()])}</b></p><p>التاريخ: ${d}</p><p>رمز التحقق: <span class="code">${code}</span></p></div>`;
+function showCert(){if(!allDone()&&!S.teacher){toast('اجتز الأراضي الثمانية أولًا');return;}const sc=avgScore(),d=today(),code=certCode(S.name||'طالب',sc,d);
+ const certH=`<div class="cert"><p>شهادة إتمام</p><h3>مدينة القواعد</h3><p>قواعد الفقه المالي ومقاصده</p><p>تشهد بأن</p><div class="nm">${esc(S.name||'طالب العلم')}</div><p>أتمّ أراضٍ المدينة الثمانية بمتوسط <b>${sc}%</b> ورتبة <b>${esc(C.ranks[rankIdx()])}</b></p><p>التاريخ: ${d}</p><p>رمز التحقق: <span class="code">${code}</span></p></div>`;
  const b=openPanel('🎓 الشهادة',certH+`<div class="row-btns"><button class="pri" id="cPrint">🖨️ اطبع الشهادة</button><button class="sec" id="cRep">📊 التقرير</button><button class="sec" id="cSum">📜 الخلاصة</button></div>`);
  SFX.win();confetti(90);b.querySelector('#cPrint').onclick=()=>printHTML(certH);b.querySelector('#cRep').onclick=showReport;b.querySelector('#cSum').onclick=showSummary;}
 
 /* ---------- وضع المعلم ---------- */
 function teacherGate(){const b=openPanel('👩‍🏫 وضع المعلم',`<p class="blk-p">أدخل رمز المعلم.</p><input id="tCode" type="password" inputmode="numeric" style="font-size:20px;padding:10px;width:160px;border-radius:10px;border:1.5px solid var(--line)"> <button class="pri" id="tGo">دخول</button><p id="tMsg" class="tiny"></p>`);
  const go=()=>{if(b.querySelector('#tCode').value===TEACHER_CODE){S.teacher=true;save();teacherView();}else b.querySelector('#tMsg').textContent='رمز غير صحيح';};b.querySelector('#tGo').onclick=go;b.querySelector('#tCode').onkeydown=e=>{if(e.key==='Enter')go();};}
-function teacherView(){const b=openPanel('👩‍🏫 وضع المعلم: مفتاح الإجابات',`<p class="blk-p">كل الأحياء مفتوحة الآن. <button class="sec" id="tOff">إنهاء وضع المعلم</button></p>
+function teacherView(){const b=openPanel('👩‍🏫 وضع المعلم: مفتاح الإجابات',`<p class="blk-p">كل الأراضي مفتوحة الآن. <button class="sec" id="tOff">إنهاء وضع المعلم</button></p>
  <div class="blk-rule"><span class="lbl">تحقق من شهادة</span><input id="vName" placeholder="الاسم" style="padding:7px;border-radius:8px;border:1px solid var(--line)"> <input id="vScore" placeholder="المتوسط %" style="width:90px;padding:7px;border-radius:8px;border:1px solid var(--line)"> <input id="vDate" placeholder="YYYY-MM-DD" style="width:130px;padding:7px;border-radius:8px;border:1px solid var(--line)" dir="ltr"> <input id="vCode" placeholder="الرمز" style="width:100px;padding:7px;border-radius:8px;border:1px solid var(--line)" dir="ltr"> <button class="pri" id="vGo" style="padding:7px 12px;min-height:0">تحقق</button> <b id="vRes"></b></div>
  ${C.chapters.map(c=>`<h3 style="color:var(--teal);margin-top:12px">${c.idx+1}. ${esc(c.title)}</h3><ol class="blk-list">${c.lessons.map(l=>`<li><b>${esc(l.title)}</b> (ص ${l.page}): ${esc(l.quick.q)} ← <span style="color:var(--ok)">${esc(l.quick.options[l.quick.answer])}</span></li>`).join('')}${c.quiz.map(q=>`<li>⚔️ ${esc(q.q)} ← <span style="color:var(--ok)">${esc(q.options[q.answer])}</span> (ص ${q.page})</li>`).join('')}</ol>`).join('')}`);
  b.querySelector('#tOff').onclick=()=>{S.teacher=false;save();closePanel();if(location.hash==='#teacher')history.replaceState(null,'',location.pathname);};
@@ -231,17 +231,19 @@ $('#btnFontUp').onclick=()=>{S.font=Math.min(4,S.font+1);save();hud();};$('#btnF
 $('#btnMute').onclick=()=>{S.mute=!S.mute;save();hud();};
 $('#nameIn').value=S.name;if(S.started&&Object.keys(S.done).length){$('#btnStart').textContent='تابع رحلتك ('+Object.keys(S.done).length+' درسًا منجزًا)';}
 function begin(toMap){S.name=$('#nameIn').value.trim()||S.name;S.started=true;save();$('#start').classList.remove('show');$('#hud').hidden=false;SFX.open();hud();
- if(window.World&&World.ok){World.start();if(toMap)showMap();else if(!Object.keys(S.done).length)toast('اتجه إلى حيّ «'+C.chapters[0].title+'» المضيء');}else showMap();}
+ if(window.World&&World.ok){World.start();if(toMap)showMap();}else showMap();}
 $('#btnStart').onclick=()=>begin(false);$('#btnStartMap').onclick=()=>begin(true);
 $('#nameIn').onkeydown=e=>{if(e.key==='Enter')begin(false);};
 
 /* ---------- واجهة للعالم ---------- */
-window.App={C,S:()=>S,unlocked,chDone,openLesson:id=>maybePretest(LES[id].ch,()=>openLesson(id)),openQuiz:id=>maybePretest(id,()=>openQuiz(id)),showMap,toast,hud,
+window.App={C,S:()=>S,renderQ,addXP,confetti,SFX,save,LES,CH,PASS,openPanel,closePanel,blocksHTML,esc,allDone,showCert,dueReview,QBYKEY,
+ recordBoss(chId,sc){S.attempts[chId]=(S.attempts[chId]||0)+1;const prev=chDone(chId);S.quiz[chId]=Math.max(S.quiz[chId]||0,sc);save();if(sc>=PASS&&!prev)addXP(80);hud();return !prev&&sc>=PASS;},
+ openLessonDirect:id=>openLesson(id),unlocked,chDone,openLesson:id=>maybePretest(LES[id].ch,()=>openLesson(id)),openQuiz:id=>maybePretest(id,()=>openQuiz(id)),showMap,toast,hud,
  noGL(){document.body.classList.add('nogl');$('#webglNote').hidden=false;$('#btnStart').textContent='ابدأ من خريطة المنهج';$('#btnStartMap').hidden=true;$('#btnStart').onclick=()=>begin(true);},
  isOpen:()=>$('#panel').classList.contains('show')||$('#start').classList.contains('show')};
 if(location.hash==='#teacher')setTimeout(()=>{$('#start').classList.remove('show');$('#hud').hidden=false;S.started=true;teacherGate();},300);
 if(S.teacher)S.teacher=location.hash==='#teacher'&&S.teacher;
 hud();
 // إن لم يُحمَّل العالم خلال 8 ثوانٍ (لا إنترنت أو لا WebGL) فالخريطة بديل كامل
-setTimeout(()=>{if(!window.World||!World.ok)App.noGL();},8000);
+setTimeout(()=>{if(!window.World||!World.ok)App.noGL();},10000);
 })();
