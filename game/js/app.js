@@ -230,7 +230,7 @@ $('#btnMap').onclick=showMap;$('#btnReview').onclick=openReview;$('#btnReport').
 $('#btnFontUp').onclick=()=>{S.font=Math.min(4,S.font+1);save();hud();};$('#btnFontDown').onclick=()=>{S.font=Math.max(-2,S.font-1);save();hud();};
 $('#btnMute').onclick=()=>{S.mute=!S.mute;save();hud();};
 $('#nameIn').value=S.name;if(S.started&&Object.keys(S.done).length){$('#btnStart').textContent='تابع رحلتك ('+Object.keys(S.done).length+' درسًا منجزًا)';}
-function begin(toMap){S.name=$('#nameIn').value.trim()||S.name;S.started=true;save();$('#start').classList.remove('show');$('#hud').hidden=false;SFX.open();hud();
+function begin(toMap){document.body.classList.add('started');S.name=$('#nameIn').value.trim()||S.name;S.started=true;save();$('#start').classList.remove('show');$('#hud').hidden=false;SFX.open();hud();
  if(window.World&&World.ok){World.start();if(toMap)showMap();}else showMap();}
 $('#btnStart').onclick=()=>begin(false);$('#btnStartMap').onclick=()=>begin(true);
 $('#nameIn').onkeydown=e=>{if(e.key==='Enter')begin(false);};

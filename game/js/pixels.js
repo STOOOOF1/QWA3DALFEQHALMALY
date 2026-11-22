@@ -22,8 +22,9 @@ const REGIONS=[
  {g:'#5fa79a',g2:'#4f9488',path:'#cfe3dd',roof:'#2f6f8f',water:'#2f7fb8',wall:'#56707a'},   // 7 فيروزي
  {g:'#4f6b8f',g2:'#45607f',path:'#c8b98a',roof:'#c9972f',water:'#2b5a9a',wall:'#3a4660'}    // 8 ليلي (المنارة)
 ];
-const KIND={grass:0,grass2:1,flowers:2,path:3,tree:4,rock:5,water:6,wall:7,roof:8,hwall:9,door:10,window:11,planks:12,tall:13,bush:14,lamp:15};
-const COLLIDE=[4,5,6,7,8,9,10,11,14,15];
+const KIND={grass:0,grass2:1,flowers:2,path:3,tree:4,rock:5,water:6,wall:7,roof:8,hwall:9,door:10,window:11,planks:12,tall:13,bush:14,lamp:15,water2:16,plaza:17,plaza2:18,shore:19,fence:20,bench:21,crop:22,stump:23};
+const NK=24;
+const COLLIDE=[4,5,6,7,8,9,10,11,14,15,16,20,21,23];
 function grassTile(ctx,ox,oy,R,r,alt){px(ctx,ox,oy,alt?R.g2:R.g,T,T);for(let i=0;i<22;i++){const x=r()*T|0,y=r()*T|0;px(ctx,ox+x,oy+y,shade(R.g,r()<.5?.82:1.14));}
  for(let i=0;i<4;i++){const x=1+r()*13|0,y=2+r()*12|0;px(ctx,ox+x,oy+y,shade(R.g,.72));px(ctx,ox+x+1,oy+y-1,shade(R.g,.72));}}
 function drawTile(ctx,ox,oy,k,R,seed){const r=rng(seed);
@@ -45,9 +46,16 @@ function drawTile(ctx,ox,oy,k,R,seed){const r=rng(seed);
  case 12:px(ctx,ox,oy,'#a5703e',T,T);for(let x=0;x<T;x+=4){px(ctx,ox+x,oy,'#7d5232',1,T);px(ctx,ox+x+1,oy,'#b9844e',1,T);}px(ctx,ox+2,oy+5,'#5a3a20');px(ctx,ox+10,oy+11,'#5a3a20');break;
  case 13:grassTile(ctx,ox,oy,R,r,0);for(let i=0;i<7;i++){const x=1+i*2+(r()*2|0);px(ctx,ox+x,oy+8,shade(R.g,.65),1,7);px(ctx,ox+x,oy+6+(r()*3|0),shade(R.g,1.15),1,2);}break;
  case 14:grassTile(ctx,ox,oy,R,r,0);for(let y=4;y<15;y++)for(let x=1;x<15;x++){const dx=x-7.5,dy=y-9.5;if(dx*dx/45+dy*dy/26<1)px(ctx,ox+x,oy+y,dy<-1?shade(R.g,.9):shade(R.g,.66));}for(let i=0;i<4;i++)px(ctx,ox+3+(r()*10|0),oy+6+(r()*6|0),'#e0475a');break;
- case 15:grassTile(ctx,ox,oy,R,r,0);px(ctx,ox+7,oy+5,'#3a3040',2,11);px(ctx,ox+5,oy+1,'#3a3040',6,5);px(ctx,ox+6,oy+2,'#ffd86a',4,3);px(ctx,ox+4,oy+14,'#3a3040',8,2);break;}
+ case 15:grassTile(ctx,ox,oy,R,r,0);px(ctx,ox+7,oy+5,'#3a3040',2,11);px(ctx,ox+5,oy+1,'#3a3040',6,5);px(ctx,ox+6,oy+2,'#ffd86a',4,3);px(ctx,ox+4,oy+14,'#3a3040',8,2);break;
+ case 16:px(ctx,ox,oy,shade(R.water,.95),T,T);for(let i=0;i<4;i++){const y=1+i*4+(r()*2|0),x=2+(r()*10|0);px(ctx,ox+x,oy+y,shade(R.water,1.4),3,1);px(ctx,ox+x-3,oy+y+1,shade(R.water,1.15),2,1);}for(let i=0;i<10;i++)px(ctx,ox+(r()*T|0),oy+(r()*T|0),shade(R.water,.85));break;
+ case 17:case 18:{const b=k===17?'#e9dcc0':'#ddcda9';px(ctx,ox,oy,b,T,T);for(let y=0;y<T;y+=8){px(ctx,ox,oy+y,shade(b,.8),T,1);const off=(y/8)%2?4:0;for(let x=off;x<T;x+=8)px(ctx,ox+x,oy+y,shade(b,.8),1,8);}for(let i=0;i<8;i++)px(ctx,ox+(r()*T|0),oy+(r()*T|0),shade(b,1.08));break;}
+ case 19:grassTile(ctx,ox,oy,R,r,0);px(ctx,ox,oy+10,R.path,T,6);for(let x=0;x<T;x+=2)px(ctx,ox+x,oy+9+(r()*2|0),shade(R.path,.85));break;
+ case 20:grassTile(ctx,ox,oy,R,r,0);px(ctx,ox,oy+6,'#8a5a32',T,2);px(ctx,ox,oy+11,'#8a5a32',T,2);[1,7,13].forEach(x=>{px(ctx,ox+x,oy+3,'#6b4428',2,12);px(ctx,ox+x,oy+3,'#a5703e',1,12);});break;
+ case 21:{px(ctx,ox,oy,'#e9dcc0',T,T);px(ctx,ox+1,oy+7,'#8a5a32',14,3);px(ctx,ox+1,oy+7,'#b9844e',14,1);px(ctx,ox+2,oy+10,'#5a3a20',2,4);px(ctx,ox+12,oy+10,'#5a3a20',2,4);break;}
+ case 22:px(ctx,ox,oy,'#8a6a3a',T,T);for(let y=1;y<T;y+=4){px(ctx,ox,oy+y,'#6b4f2a',T,1);for(let x=1;x<T;x+=3){px(ctx,ox+x,oy+y-1,shade(R.g,.9),1,2);px(ctx,ox+x,oy+y-2,shade(R.g,1.2));}}break;
+ case 23:grassTile(ctx,ox,oy,R,r,1);px(ctx,ox+4,oy+8,'#7d5232',8,6);px(ctx,ox+4,oy+7,'#c99a5a',8,2);px(ctx,ox+6,oy+7,'#a5703e',4,1);break;}
 }
-function tileset(){const cv=canvas(16*T,8*T);const ctx=cv.getContext('2d');REGIONS.forEach((R,ri)=>{for(let k=0;k<16;k++)drawTile(ctx,k*T,ri*T,k,R,ri*97+k*13+5);});return cv;}
+function tileset(){const cv=canvas(NK*T,8*T);const ctx=cv.getContext('2d');REGIONS.forEach((R,ri)=>{for(let k=0;k<NK;k++)drawTile(ctx,k*T,ri*T,k,R,ri*97+k*13+5);});return cv;}
 // بلاطة الماء المتحركة: إطاران
 function waterFrame(R,f){const cv=canvas(T,T);drawTile(cv.getContext('2d'),0,0,6,R,f*31+7);return cv;}
 
@@ -100,7 +108,41 @@ function heart(full){const cv=canvas(9,8);const c=cv.getContext('2d');const col=
  m.forEach((r,y)=>[...r].forEach((ch,x)=>{if(ch==='x')px(c,x,y,col);}));if(full)px(c,2,1,'#ff9aa8');return cv;}
 function bang(col){const cv=canvas(8,10);const c=cv.getContext('2d');px(c,1,0,col,6,10);px(c,0,1,col,8,8);px(c,3,2,'#1d1a2b',2,4);px(c,3,7,'#1d1a2b',2,1);return cv;}
 function check(){const cv=canvas(8,10);const c=cv.getContext('2d');px(c,1,0,'#2a7a4f',6,10);px(c,0,1,'#2a7a4f',8,8);[[2,5],[3,6],[4,5],[5,4],[6,3]].forEach(([x,y])=>px(c,x,y,'#fff'));return cv;}
+
+/* ===== أشجار كبيرة ومعالم وأهالٍ وتأثيرات ===== */
+function bigTree(R,kind,seed){const r=rng(seed);const W=32,H=40;const cv=canvas(W,H);const c=cv.getContext('2d');
+ px(c,8,37,'rgba(0,0,0,.22)',16,3);
+ if(kind==='palm'){px(c,15,14,'#8a6440',3,24);for(let y=14;y<38;y+=3)px(c,15,y,'#6b4428',3,1);const fr=['#4f8a2a','#6fae3a','#3f7020'];
+  for(let a=0;a<7;a++){const ang=a/7*Math.PI*2;for(let t=0;t<12;t++){const x=16+Math.cos(ang)*t,y=13+Math.sin(ang)*t*0.55+t*t*0.04;px(c,x|0,y|0,fr[t%3],2,1);}}px(c,14,12,'#8a5a2a',4,3);}
+ else{const leaf=kind==='autumn'?['#c9572f','#e08a3a','#a8402a']:kind==='night'?['#2f4a6a','#3f5f85','#24395a']:kind==='blossom'?['#e8a0c0','#f5c4d8','#c97aa0']:[shade(R.g,.55),shade(R.g,.75),shade(R.g,.95)];
+  px(c,13,24,'#6b4428',6,14);px(c,13,24,'#8a5a32',2,14);px(c,11,35,'#6b4428',10,2);
+  const blob=(cx,cy,rx,ry,col)=>{for(let y=-ry;y<=ry;y++)for(let x=-rx;x<=rx;x++)if(x*x/(rx*rx)+y*y/(ry*ry)<=1)px(c,cx+x,cy+y,col);};
+  blob(16,15,13,11,leaf[0]);blob(13,12,9,7,leaf[1]);blob(19,11,7,6,leaf[1]);blob(12,9,4,3,leaf[2]);for(let i=0;i<30;i++)px(c,4+(r()*24|0),5+(r()*18|0),leaf[r()*3|0]);}
+ outline(cv,'rgba(29,26,43,.85)');return cv;}
+function landmark(k,R){const cv=canvas(128,96);const c=cv.getContext('2d');const st='#efe3cc',st2='#d8c6a2',dk='#4b3a2a',gold='#d4a443',rf=R.roof;
+ const box=(x,y,w,h,col,edge)=>{px(c,x,y,col,w,h);if(edge)px(c,x,y,edge,w,1);};
+ const dome=(cx,cy,rad,col)=>{for(let y=-rad;y<=0;y++)for(let x=-rad;x<=rad;x++)if(x*x+y*y<=rad*rad)px(c,cx+x,cy+y,x<-rad/3?shade(col,1.2):(x>rad/3?shade(col,.8):col));};
+ const arch=(x,y,w,h)=>{px(c,x,y+2,dk,w,h-2);px(c,x+1,y,dk,w-2,2);};
+ px(c,6,90,'rgba(0,0,0,.22)',116,6);
+ switch(k){
+ case 0:box(14,40,100,52,st,st2);for(let i=0;i<6;i++){box(20+i*16,48,6,44,st2);px(c,20+i*16,48,'#fff',2,44);}box(10,34,108,8,rf);dome(64,34,22,rf);px(c,63,6,gold,2,8);arch(56,68,16,24);box(30,22,8,12,st);box(90,22,8,12,st);break; // مكتبة
+ case 1:box(48,70,32,22,st,st2);box(61,20,6,52,gold);box(28,18,72,5,gold);[34,94].forEach(x=>{px(c,x-1,23,dk,1,22);px(c,x+1,23,dk,1,22);dome(x,52,14,rf);box(x-14,48,28,4,shade(rf,.8));});px(c,58,12,gold,12,8);break; // ميزان
+ case 2:for(let y=60;y<92;y++)for(let x=8;x<120;x++){const dx=(x-64)/56,dy=(y-76)/16;if(dx*dx+dy*dy<1)px(c,x,y,dy<-.3?'#7cc8e8':'#3aa0c8');}[[20,30],[100,28],[40,18],[84,16]].forEach(([x,y])=>{const t=bigTree(R,'palm',x);c.drawImage(t,x-16,y);});break; // واحة
+ case 3:box(20,30,88,62,'#b8a68a','#d0c0a0');for(let x=20;x<108;x+=8)box(x,22,5,8,'#b8a68a');box(46,10,36,82,'#a8967a');for(let x=46;x<82;x+=7)box(x,4,4,6,'#a8967a');arch(56,62,16,30);px(c,62,22,dk,4,8);px(c,30,50,dk,4,6);px(c,94,50,dk,4,6);px(c,63,0,rf,10,6);px(c,62,0,dk,1,14);break; // قلعة
+ case 4:box(48,14,32,78,st,st2);for(let y=20;y<88;y+=12){px(c,48,y,st2,32,1);px(c,61,y+3,dk,6,6);}dome(64,14,16,rf);px(c,63,-2,gold,2,6);box(40,86,48,6,st2);break; // برج
+ case 5:[[10,40,rf],[48,30,'#e0475a'],[86,40,shade(rf,1.3)]].forEach(([x,y,col])=>{px(c,x+2,y+20,dk,2,34);px(c,x+30,y+20,dk,2,34);for(let i=0;i<20;i++)px(c,x+16-i*0.8-14+i*0.8,y+i,col,Math.max(2,i*1.7),1);for(let i=0;i<34;i+=6)px(c,x+i,y+18,shade(col,.75),3,4);box(x+4,y+40,26,10,'#a5703e','#c99a5a');[['#e0475a',8],['#f5d33d',16],['#6fbf5a',22]].forEach(([fc,fx])=>px(c,x+fx,y+37,fc,4,3));});break; // سوق
+ case 6:box(24,40,80,52,st,st2);dome(64,40,26,rf);box(40,40,48,4,gold);arch(54,62,20,30);px(c,62,74,gold,4,4);for(let x=30;x<100;x+=60)box(x,52,8,12,dk);px(c,63,10,gold,2,6);break; // خزانة
+ case 7:for(let y=8;y<92;y++){const w=10+(y-8)*0.18;px(c,64-w,y,(y/10|0)%2?st:'#e0475a',w*2,1);}box(48,2,32,10,'#3a3040');px(c,52,4,'#ffe08a',24,6);dome(64,2,10,rf);box(44,86,40,6,st2);break; // منارة
+ }
+ outline(cv,'rgba(29,26,43,.9)');return cv;}
+function glow(col='255,214,120'){const s=64;const cv=canvas(s,s);const c=cv.getContext('2d');const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,`rgba(${col},.9)`);g.addColorStop(.35,`rgba(${col},.35)`);g.addColorStop(1,`rgba(${col},0)`);c.fillStyle=g;c.fillRect(0,0,s,s);return cv;}
+function cloud(){const cv=canvas(160,80);const c=cv.getContext('2d');[[50,40,40],[90,36,46],[120,44,30]].forEach(([x,y,r])=>{const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(10,10,30,.55)');g.addColorStop(1,'rgba(10,10,30,0)');c.fillStyle=g;c.fillRect(0,0,160,80);});return cv;}
+function dot(col,w=2,h=2){const cv=canvas(w,h);px(cv.getContext('2d'),0,0,col,w,h);return cv;}
+function leaf(col){const cv=canvas(4,3);const c=cv.getContext('2d');px(c,1,0,col,2,1);px(c,0,1,col,4,1);px(c,1,2,shade(col,.7),2,1);return cv;}
+function butterfly(col,f){const cv=canvas(5,4);const c=cv.getContext('2d');if(f){px(c,0,0,col,2,2);px(c,3,0,col,2,2);px(c,0,2,shade(col,.8),2,1);px(c,3,2,shade(col,.8),2,1);}else{px(c,1,0,col,1,3);px(c,3,0,col,1,3);}px(c,2,0,'#1d1a2b',1,4);return cv;}
+function bird(f){const cv=canvas(7,4);const c=cv.getContext('2d');const k='#2a2438';if(f){px(c,0,0,k);px(c,1,1,k);px(c,2,2,k);px(c,3,2,k);px(c,4,1,k);px(c,5,0,k);px(c,6,0,k);}else{px(c,0,2,k);px(c,1,1,k);px(c,2,1,k);px(c,3,2,k);px(c,4,1,k);px(c,5,1,k);px(c,6,2,k);}return cv;}
+
 // صورة مكبّرة لاستعمالها في DOM
 function big(cv,scale=6){const o=canvas(cv.width*scale,cv.height*scale);const c=o.getContext('2d');c.imageSmoothingEnabled=false;c.drawImage(cv,0,0,o.width,o.height);return o.toDataURL();}
-window.PIX={T,REGIONS,KIND,COLLIDE,tileset,waterFrame,person,slime,boss,heart,bang,check,big,shade};
+window.PIX={T,NK,REGIONS,KIND,COLLIDE,tileset,bigTree,landmark,glow,cloud,dot,leaf,butterfly,bird,waterFrame,person,slime,boss,heart,bang,check,big,shade};
 })();
