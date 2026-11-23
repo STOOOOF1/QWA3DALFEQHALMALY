@@ -69,11 +69,12 @@ header h1 small{display:block;font-size:12.5px;font-weight:500;color:var(--gray)
 .confirm{display:none;margin-top:8px;background:#f6e6e3;border-radius:12px;padding:10px;font-size:14px;text-align:center}
 .confirm.show{display:block}
 .confirm .btn{padding:8px 16px;margin:6px 4px 0;font-size:14px}
+.proglink{display:flex;align-items:center;gap:10px;margin:-2px 0 12px;font-size:12px;color:#5d6b6a;line-height:1.5}.proglink button{flex:none;font:inherit;font-size:12.5px;font-weight:800;color:#0f5c5a;background:#e3f1ef;border:1px solid #cfe0dd;border-radius:99px;padding:6px 12px;cursor:pointer}
 </style></head><body>
 <div class="wrap">
 <header><h1>قواعد الفقه المالي ومقاصده<small>بطاقات مذاكرة متدرّجة</small></h1><button class="btn" id="menuBtn">☰ القائمة</button></header>
 <div class="prog"><div class="row"><span>التقدم الكلي</span><span id="tot"></span></div><div class="bar"><i id="totBar"></i></div></div>
-<div class="levels" id="levels"></div>
+<div class="levels" id="levels"></div><div class="proglink"><button id="progBtn" type="button">🔗 انسخ رابط تقدّمك</button><span>احفظه في المفضلة: يعيدك إلى موضعك وما أنجزته ولو مُسح حفظ المتصفح</span></div>
 <div id="main"></div>
 </div>
 <div id="sheet"><div class="panel"><div class="ph"><b id="shTitle"></b><button class="link" id="close">إغلاق ✕</button></div><div class="list" id="list"></div>
@@ -201,7 +202,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
 let hist=[],cur=null,showFinish=false;
 const $=id=>document.getElementById(id);
 const lvDone=n=>LEVELS[n-1].cards.filter(c=>st.done[c.id]).length;
-const unlocked=n=>n===1||lvDone(n-1)===LEVELS[n-2].total;
+const unlocked=n=>true; // كل المستويات مفتوحة
 function order(n){let o=st.order[n];const ids=LEVELS[n-1].cards.map(c=>c.id);if(!o||o.length!==ids.length||!ids.every(i=>o.includes(i))){o=ids.slice();st.order[n]=o;}return o;}
 function byId(id){for(const l of LEVELS)for(const c of l.cards)if(c.id===id)return c;}
 function nextCard(n){return order(n).find(id=>!st.done[id]);}
@@ -218,7 +219,7 @@ function render(){
  if(!cur||byId(cur).lv!==n){cur=nextCard(n)||null;}
  if(showFinish||!cur){
   const last=n===LEVELS.length;
-  $("main").innerHTML=`<div class="card"><div class="finish"><div class="e">${last?'🏆':'🎉'}</div><h2>${last?'أتممت المقرر كله!':'أتممت المستوى '+n+': '+L.name}</h2><p>${last?'أنهيت البطاقات المئة كلها. راجع ما شئت من المستويات متى أردت.':'أحسنت! فُتح لك المستوى التالي، وفيه تعمّق أكثر.'}</p>${last?'':`<button class="btn pri" id="goNext">انتقل إلى المستوى ${n+1}: ${LEVELS[n].name}</button>`}<button class="btn sec" id="review">راجع بطاقات هذا المستوى</button></div></div>`;
+  $("main").innerHTML=`<div class="card"><div class="finish"><div class="e">${last?'🏆':'🎉'}</div><h2>${last?'أتممت المقرر كله!':'أتممت المستوى '+n+': '+L.name}</h2><p>${last?'أنهيت البطاقات المئة كلها. راجع ما شئت من المستويات متى أردت.':'أحسنت! المستوى التالي فيه تعمّق أكثر.'}</p>${last?'':`<button class="btn pri" id="goNext">انتقل إلى المستوى ${n+1}: ${LEVELS[n].name}</button>`}<button class="btn sec" id="review">راجع بطاقات هذا المستوى</button></div></div>`;
   if(!last)$("goNext").onclick=()=>{st.level=n+1;showFinish=false;cur=null;hist=[];save();render();};
   $("review").onclick=()=>{showFinish=false;cur=order(n)[0];hist=[];render();};
   return;}
@@ -241,7 +242,27 @@ $("reset").onclick=()=>$("cf").classList.add("show");$("cfNo").onclick=()=>$("cf
 $("cfYes").onclick=()=>{const n=st.level;LEVELS[n-1].cards.forEach(c=>delete st.done[c.id]);delete st.order[n];
  for(let k=n+1;k<=LEVELS.length;k++){/* لا يُمس تقدّم المستويات الأعلى */}
  cur=null;hist=[];showFinish=false;save();$("sheet").classList.remove("open");toast("أُعيد تعيين المستوى");render();};
-if(!unlocked(st.level))st.level=1;
+
+/* ===== رابط التقدم: يُكتب التقدم والموضع في الرابط، فيعود الدارس إلى مكانه ولو مُسح حفظ المتصفح ===== */
+const PROG=(()=>{const A='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+ const lvOf=id=>+String(id).split('-')[0].slice(1);
+ function enc(){const ids=P.ids(),d=P.done();let s='';for(let i=0;i<ids.length;i+=6){let v=0;for(let j=0;j<6;j++)if(d[ids[i+j]])v|=1<<j;s+=A[v];}
+  const c=P.cur();return 'p='+s+'&l='+P.level()+(c?'&c='+c:'');}
+ function sync(){try{window.history.replaceState(null,'','#'+enc());}catch(e){}}
+ function load(){let start=null;try{const m={};(location.hash||'').replace(/^#/,'').split('&').forEach(kv=>{const i=kv.indexOf('=');if(i>0)m[kv.slice(0,i)]=kv.slice(i+1);});
+  if(!m.p)return null;const ids=P.ids(),d=P.done(),before=ids.filter(i=>d[i]).length;let fromLink=0;
+  for(let i=0;i<ids.length;i++){const v=A.indexOf(m.p[Math.floor(i/6)]||'A');if(v>=0&&(v>>(i%6))&1){fromLink++;d[ids[i]]=true;}}
+  if(fromLink>=before){if(m.c&&ids.includes(m.c)){P.go(lvOf(m.c),m.c);start=m.c;}else if(+m.l>=1&&+m.l<=4)P.go(+m.l,null);}
+  P.save();}catch(e){}return start;}
+ function copy(){const url=location.href.split('#')[0]+'#'+enc();const ok=()=>toast('نُسخ الرابط ✓ احفظه في المفضلة أو أرسله لنفسك');
+  const fb=()=>{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();
+   let done=false;try{done=document.execCommand('copy');}catch(e){}t.remove();if(done)ok();else window.prompt('انسخ هذا الرابط واحفظه:',url);};
+  try{navigator.clipboard.writeText(url).then(ok,fb);}catch(e){fb();}}
+ return {sync,load,copy};})();
+const P={ids:()=>LEVELS.flatMap(l=>l.cards.map(c=>c.id)),done:()=>st.done,level:()=>st.level,cur:()=>showFinish?null:cur,go:(l,id)=>{st.level=l;cur=id;showFinish=false;},save};
+{const _f=render;render=function(...a){const r=_f.apply(this,a);PROG.sync();return r;};}
+document.getElementById('progBtn').onclick=()=>PROG.copy();
+PROG.load();
 render();
 </script>
 </body></html>
